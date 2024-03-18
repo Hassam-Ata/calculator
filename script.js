@@ -1,20 +1,114 @@
 document.addEventListener("DOMContentLoaded", function() {
     const display = document.querySelector(".display");
-    const btns = document.querySelectorAll(".numericKeys");
+    const numericKeys = document.querySelectorAll(".numericKeys");
     const allClearBtn = document.querySelector(".allClear");
+    const operators=document.querySelectorAll(".operators")
+    const equalsTo=document.querySelector(".equalsTo");
+    const previousScreen=document.querySelector(".previousScreen");
+    const currentScreen=document.querySelector(".currentScreen");
 
-    let value = 0;
+    const decimal= document.querySelector(".decimal");
+    let currentValue = '';
+    let previousValue = '';
+    let operator = '';
 
-    btns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const textContent = btn.textContent;
-            value = parseFloat(textContent); // Convert text content to a float
-            display.textContent += textContent; // Append text content directly to display
+    numericKeys.forEach((numericKey) => {
+        numericKey.addEventListener("click", () => {
+            handleNumbers(numericKey.textContent);
+            currentScreen.textContent = currentValue;
+        
         });
     });
 
-    allClearBtn.addEventListener("click", () => {
-        display.textContent = "";
-        value = 0; // Reset value to 0
+    operators.forEach((op)=>{
+        op.addEventListener("click",()=>{
+            handleOperators(op.textContent);
+            previousScreen.textContent=previousValue +" "+operator;
+            currentScreen.textContent=currentValue;
+            console.log(operator);
+
+        });
     });
+    
+    equalsTo.addEventListener("click",()=>{
+        calculate();
+                    // Display the result in previousScreen and clear current value
+                    previousScreen.textContent = "";
+                    currentScreen.textContent = previousValue;
+            
+                    // Reset currentValue for next calculation
+                    currentValue = "";
+        
+
+
+    })
+
+    allClearBtn.addEventListener("click", () => {
+        previousValue="";
+        currentValue = "";
+        currentScreen.textContent=currentValue;
+        
+    });
+
+    decimal.addEventListener("click",()=>{
+        handledecimal();
+    })
+
+    function handleNumbers(num) {
+
+        if (currentValue.length<=5) {
+            currentValue+=num;   
+        }
+    }
+
+    function handleOperators(op) {
+        operator=op;
+        previousValue=currentValue;
+        currentValue="";
+
+        
+    }
+    function handledecimal(){
+        if (!currentValue.includes(".")) {
+            currentValue+="."; 
+            
+        }
+    }
+    function calculate() {
+        currentValue = Number(currentValue);
+        previousValue = Number(previousValue);
+    
+        if (!isNaN(currentValue) && !isNaN(previousValue)) {
+            switch (operator) {
+                case "+":
+                    previousValue += currentValue;
+                    break;
+                case "-":
+                    previousValue -= currentValue;
+                    break;
+                case "*":
+                    previousValue *= currentValue;
+                    break;
+                case "/":
+                    if (currentValue !== 0) {
+                        previousValue /= currentValue;
+                    } else {
+                        alert("Error: Division by zero");
+                        currentValue='';
+                        previousValue='';
+                        return;
+                    }
+                    break;
+                default:
+                    break;
+            }
+    
+            // Round the result to 3 decimal places
+            previousValue = Math.round(previousValue * 1000) / 1000;
+    
+
+        }
+    }
+    
 });
+
